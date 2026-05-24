@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Car Block Coding</title>
+
+  <!-- Blockly core and built-in blocks -->
+  <script src="../node_modules/blockly/blockly_compressed.js"></script>
+  <script src="../node_modules/blockly/blocks_compressed.js"></script>
+  <script src="../node_modules/blockly/msg/en.js"></script>
+
+  <!-- Custom car blocks and toolbox -->
+  <script src="../src/ui/blocks.js"></script>
+  <script src="../src/ui/toolbox.js"></script>
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #1a1a2e;
+      color: #eee;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ── Top bar ── */
+    #header {
+      background: #16213e;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 2px solid #0f3460;
+      flex-shrink: 0;
+    }
+
+    #header h1 {
+      font-size: 1.3rem;
+      color: #e94560;
+      margin-right: auto;
+    }
+
+    .btn {
+      padding: 9px 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.1s, opacity 0.1s;
+    }
+    .btn:active { transform: scale(0.96); }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    #btn-run    { background: #4CAF50; color: #fff; }
+    #btn-upload { background: #e94560; color: #fff; }
+    #btn-ports  { background: #0f3460; color: #ccc; font-size: 0.85rem; }
+
+    #port-select {
+      padding: 8px 10px;
+      border-radius: 6px;
+      background: #0f3460;
+      color: #eee;
+      border: 1px solid #e94560;
+      font-size: 0.85rem;
+    }
+
+    #fqbn-select {
+      padding: 8px 10px;
+      border-radius: 6px;
+      background: #0f3460;
+      color: #eee;
+      border: 1px solid #555;
+      font-size: 0.85rem;
+    }
+
+    /* ── Main area ── */
+    #main {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* Blockly workspace */
+    #blockly-div {
+      flex: 1;
+      height: 100%;
+    }
+
+    /* Right panel */
+    #panel {
+      width: 340px;
+      background: #16213e;
+      border-left: 2px solid #0f3460;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    #panel-tabs {
+      display: flex;
+      border-bottom: 2px solid #0f3460;
+    }
+
+    .tab {
+      flex: 1;
+      padding: 10px;
+      text-align: center;
+      cursor: pointer;
+      font-size: 0.85rem;
+      color: #888;
+      border-bottom: 3px solid transparent;
+      transition: color 0.2s;
+    }
+    .tab.active { color: #e94560; border-bottom-color: #e94560; }
+
+    #panel-content {
+      flex: 1;
+      overflow: auto;
+      padding: 12px;
+    }
+
+    #code-output {
+      font-family: 'Courier New', monospace;
+      font-size: 0.75rem;
+      color: #c5e1a5;
+      white-space: pre;
+      line-height: 1.5;
+    }
+
+    #status-output {
+      font-size: 0.85rem;
+      line-height: 1.7;
+    }
+
+    .status-ok    { color: #4CAF50; }
+    .status-error { color: #e94560; }
+    .status-info  { color: #90caf9; }
+    .status-warn  { color: #ffb74d; }
+
+    /* Progress spinner */
+    .spinner {
+      display: inline-block;
+      width: 12px; height: 12px;
+      border: 2px solid #555;
+      border-top-color: #e94560;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin-right: 6px;
+      vertical-align: middle;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <!-- Header / toolbar -->
+  <div id="header">
+    <h1>🚗 Car Block Coding</h1>
+
+    <select id="fqbn-select" title="Arduino board variant">
+      <option value="arduino:avr:nano:cpu=atmega328old">Nano (old bootloader)</option>
+      <option value="arduino:avr:nano:cpu=atmega328">Nano (new bootloader)</option>
+      <option value="arduino:avr:uno">Uno</option>
+    </select>
+
+    <select id="port-select">
+      <option value="">-- select port --</option>
+    </select>
+
+    <button class="btn" id="btn-ports">⟳ Detect Ports</button>
+    <button class="btn" id="btn-run">▶ Run Program</button>
+    <button class="btn" id="btn-upload">⬆ Upload to Car</button>
+  </div>
+
+  <!-- Main content -->
+  <div id="main">
+    <div id="blockly-div"></div>
+
+    <div id="panel">
+      <div id="panel-tabs">
+        <div class="tab active" data-tab="code">Arduino Code</div>
+        <div class="tab" data-tab="status">Status / Log</div>
+      </div>
+      <div id="panel-content">
+        <pre id="code-output">Press "▶ Run Program" to see the generated Arduino code.</pre>
+        <div id="status-output" style="display:none"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Blockly XML toolbox (injected by toolbox.js as window.CAR_TOOLBOX) -->
+  <script src="../src/ui/renderer.js"></script>
+</body>
+</html>
