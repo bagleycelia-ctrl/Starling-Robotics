@@ -1,0 +1,15 @@
+{
+  "name": "car-block-coding",
+  "version": "1.0.0",
+  "description": "Block-based programming for Arduino robot car",
+  "main": "electron/main.js",
+  "scripts": {
+    "start": "ELECTRON_RUN_AS_NODE= electron ."
+  },
+  "devDependencies": {
+    "electron": "^28.3.3"
+  },
+  "dependencies": {
+    "blockly": "^10.3.1"
+  }
+}
