@@ -5,20 +5,25 @@
 
   // ── Blockly workspace ───────────────────────────────────────────────────────
 
-  var darkTheme = Blockly.Theme.defineTheme('carDark', {
+  var kidTheme = Blockly.Theme.defineTheme('carKid', {
     base: Blockly.Themes.Classic,
+    fontStyle: {
+      family: "'Fredoka One', 'Chalkboard SE', cursive",
+      weight: '400',
+      size: 14,
+    },
     componentStyles: {
-      workspaceBackgroundColour: '#1e1e2e',
-      toolboxBackgroundColour: '#16213e',
-      toolboxForegroundColour: '#eee',
-      flyoutBackgroundColour: '#0f3460',
-      flyoutForegroundColour: '#eee',
-      flyoutOpacity: 0.97,
-      scrollbarColour: '#4a4a6e',
-      scrollbarOpacity: 0.5,
-      insertionMarkerColour: '#fff',
-      insertionMarkerOpacity: 0.3,
-      cursorColour: '#d0d0ff',
+      workspaceBackgroundColour: '#EEF2FF',
+      toolboxBackgroundColour: '#FFFFFF',
+      toolboxForegroundColour: '#333',
+      flyoutBackgroundColour: '#F8F9FF',
+      flyoutForegroundColour: '#333',
+      flyoutOpacity: 1,
+      scrollbarColour: '#C5CAE9',
+      scrollbarOpacity: 0.7,
+      insertionMarkerColour: '#FF9F43',
+      insertionMarkerOpacity: 0.5,
+      cursorColour: '#54A0FF',
     },
   });
 
@@ -27,10 +32,22 @@
     scrollbars: true,
     trashcan: true,
     zoom: { controls: true, wheel: true, startScale: 1.0, maxScale: 2, minScale: 0.5 },
-    grid: { spacing: 20, length: 3, colour: '#2a2a4a', snap: true },
-    theme: darkTheme,
+    grid: { spacing: 24, length: 4, colour: '#D0D8FF', snap: true },
+    theme: kidTheme,
     sounds: false,
   });
+
+  // Keep the flyout (block palette) at a fixed scale so it doesn't zoom with the workspace
+  (function () {
+    var toolbox = workspace.getToolbox();
+    if (!toolbox) return;
+    var flyout = typeof toolbox.getFlyout === 'function' ? toolbox.getFlyout() : null;
+    if (!flyout) return;
+    var fw = typeof flyout.getWorkspace === 'function' ? flyout.getWorkspace() : null;
+    if (!fw || !fw.setScale) return;
+    var _set = fw.setScale.bind(fw);
+    fw.setScale = function () { _set(1); };
+  }());
 
   // Pre-populate workspace with a Start block so kids aren't staring at nothing
   var startXml = `
@@ -52,7 +69,7 @@
       }
     }
     if (!startBlock) {
-      throw new Error('No Start block found. Drag a 🚦 Start block onto the workspace.');
+      throw new Error('No Start block found. Drag a Start block onto the workspace.');
     }
 
     var body = [];
@@ -68,6 +85,17 @@
     }
 
     return { type: 'program', body: body };
+  }
+
+  function statementsToNodes(firstBlock) {
+    var nodes = [];
+    var current = firstBlock;
+    while (current) {
+      var node = blockToNode(current);
+      if (node) nodes.push(node);
+      current = current.getNextBlock();
+    }
+    return nodes;
   }
 
   function blockToNode(block) {
@@ -98,6 +126,12 @@
 
       case 'car_set_speed':
         return { type: 'set_speed', level: +block.getFieldValue('LEVEL') };
+
+      case 'car_repeat':
+        return { type: 'repeat', times: +block.getFieldValue('TIMES'), body: statementsToNodes(block.getInputTargetBlock('DO')) };
+
+      case 'car_loop_forever':
+        return { type: 'loop_forever', body: statementsToNodes(block.getInputTargetBlock('DO')) };
 
       default:
         return null;
@@ -145,7 +179,17 @@
     clearStatus();
     log('<span class="status-info"><span class="spinner"></span>Scanning for Arduino boards…</span>');
 
-    var result = await window.electronAPI.getPorts();
+    var result;
+    try {
+      var timeout = new Promise(function (_, reject) {
+        setTimeout(function () { reject(new Error('Scan timed out after 5 seconds.')); }, 5000);
+      });
+      result = await Promise.race([window.electronAPI.getPorts(), timeout]);
+    } catch (e) {
+      log('<span class="status-error">⚠ Port scan error: ' + escHtml(e.message) + '</span>');
+      setButtons(true);
+      return;
+    }
 
     if (!result.ok) {
       log('<span class="status-error">⚠ Could not list ports: ' + escHtml(result.error) + '</span>');
@@ -218,7 +262,7 @@
     var port = portSelect.value;
     if (!port) {
       clearStatus();
-      log('<span class="status-error">⚠ No port selected. Click "⟳ Detect Ports" first, then choose your Arduino.</span>');
+      log('<span class="status-error">⚠ No port selected. Click "Detect Ports" first, then choose your Arduino.</span>');
       return;
     }
 
@@ -231,7 +275,7 @@
     var result = await window.electronAPI.uploadToArduino({ ast: ast, port: port, fqbn: fqbn });
 
     if (result.ok) {
-      log('<span class="status-ok">✔ Upload complete! Your car is ready to run. 🚗</span>');
+      log('<span class="status-ok">✔ Upload complete! Your car is ready to run.</span>');
       if (result.message) {
         log('<span class="status-info">' + escHtml(result.message) + '</span>');
       }
@@ -254,7 +298,6 @@
       .replace(/"/g, '&quot;');
   }
 
-  // Trigger initial port scan on startup
-  refreshPorts();
+  // No auto-scan on startup — click "Detect Ports" to scan
 
 })();

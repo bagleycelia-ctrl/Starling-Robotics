@@ -44,43 +44,67 @@ async function findCLI() {
   );
 }
 
+// ── Native port fallback (no arduino-cli needed) ──────────────────────────────
+
+// Matches the common USB-serial chip names that Arduino boards use on macOS/Linux.
+const SERIAL_RE = /^(cu\.usb|cu\.SLAB|cu\.wch|cu\.ch340|ttyUSB|ttyACM)/i;
+
+function listNativePorts() {
+  const devDir = process.platform === 'win32' ? null : '/dev/';
+  if (!devDir) return [];
+  try {
+    return fs.readdirSync(devDir)
+      .filter((name) => SERIAL_RE.test(name))
+      .map((name) => ({ address: devDir + name, label: '' }));
+  } catch (_) {
+    return [];
+  }
+}
+
 // ── List connected boards ─────────────────────────────────────────────────────
 
 /**
  * Returns an array of { address, label } objects for connected boards.
+ * Uses arduino-cli for board identification; falls back to native /dev/ scan.
  */
 async function listPorts() {
-  const cli = await findCLI();
-
-  let stdout = '';
+  // Try arduino-cli first (gives board names)
   try {
-    ({ stdout } = await execFileAsync(cli, ['board', 'list', '--format', 'json'], {
-      timeout: 15000,
-    }));
-  } catch (err) {
-    // arduino-cli exits non-zero when no boards are connected; stdout still has JSON
-    stdout = err.stdout || '';
-    if (!stdout) throw new Error('arduino-cli board list failed: ' + err.message);
-  }
+    const cli = await findCLI();
 
-  let parsed;
-  try {
-    parsed = JSON.parse(stdout);
+    let stdout = '';
+    try {
+      ({ stdout } = await execFileAsync(cli, ['board', 'list', '--format', 'json'], {
+        timeout: 15000,
+      }));
+    } catch (err) {
+      // arduino-cli exits non-zero when no boards are connected; stdout still has JSON
+      stdout = err.stdout || '';
+      if (!stdout) throw new Error('arduino-cli board list failed: ' + err.message);
+    }
+
+    let parsed;
+    try { parsed = JSON.parse(stdout); } catch (_) { parsed = null; }
+
+    if (parsed) {
+      // arduino-cli ≥0.35 returns { detected_ports: [...] }; older returns an array
+      const raw = Array.isArray(parsed) ? parsed : (parsed.detected_ports || []);
+      const cliPorts = raw
+        .filter((p) => p.port && p.port.address)
+        .map((p) => ({
+          address: p.port.address,
+          label: p.matching_boards && p.matching_boards[0]
+            ? p.matching_boards[0].name
+            : (p.port.label || ''),
+        }));
+      if (cliPorts.length > 0) return cliPorts;
+    }
   } catch (_) {
-    return [];
+    // arduino-cli not installed or failed — fall through to native scan
   }
 
-  // arduino-cli ≥0.35 returns { detected_ports: [...] }; older versions return an array
-  const ports = Array.isArray(parsed) ? parsed : (parsed.detected_ports || []);
-
-  return ports
-    .filter((p) => p.port && p.port.address)
-    .map((p) => ({
-      address: p.port.address,
-      label: p.matching_boards && p.matching_boards[0]
-        ? p.matching_boards[0].name
-        : (p.port.label || ''),
-    }));
+  // Fallback: scan /dev/ for USB-serial devices
+  return listNativePorts();
 }
 
 // ── Sketch management ─────────────────────────────────────────────────────────

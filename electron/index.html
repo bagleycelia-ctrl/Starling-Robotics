@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Car Block Coding</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
 
   <!-- Blockly core and built-in blocks -->
   <script src="../node_modules/blockly/blockly_compressed.js"></script>
@@ -18,9 +19,9 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #1a1a2e;
-      color: #eee;
+      font-family: 'Fredoka One', 'Chalkboard SE', cursive;
+      background: #F0F4FF;
+      color: #333;
       height: 100vh;
       display: flex;
       flex-direction: column;
@@ -29,54 +30,58 @@
 
     /* ── Top bar ── */
     #header {
-      background: #16213e;
-      padding: 10px 16px;
+      background: #FFFFFF;
+      padding: 10px 20px;
       display: flex;
       align-items: center;
       gap: 12px;
-      border-bottom: 2px solid #0f3460;
+      border-bottom: 4px solid transparent;
+      border-image: linear-gradient(90deg, #FF6B6B, #FF9F43, #54A0FF, #A29BFE) 1;
+      box-shadow: 0 4px 16px rgba(100, 120, 200, 0.18);
       flex-shrink: 0;
+      z-index: 10;
     }
 
     #header h1 {
-      font-size: 1.3rem;
-      color: #e94560;
+      font-size: 1.6rem;
+      background: linear-gradient(90deg, #FF6B6B, #FF9F43);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
       margin-right: auto;
     }
 
     .btn {
-      padding: 9px 20px;
+      padding: 9px 22px;
       border: none;
-      border-radius: 8px;
-      font-size: 0.95rem;
-      font-weight: 600;
+      border-radius: 50px;
+      font-family: 'Fredoka One', 'Chalkboard SE', cursive;
+      font-size: 1rem;
       cursor: pointer;
-      transition: transform 0.1s, opacity 0.1s;
+      transition: transform 0.12s, box-shadow 0.12s;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.12);
+      letter-spacing: 0.3px;
     }
-    .btn:active { transform: scale(0.96); }
-    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .btn:hover  { transform: translateY(-2px); box-shadow: 0 5px 14px rgba(0,0,0,0.18); }
+    .btn:active { transform: scale(0.95); box-shadow: 0 1px 4px rgba(0,0,0,0.12); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; box-shadow: none; }
 
-    #btn-run    { background: #4CAF50; color: #fff; }
-    #btn-upload { background: #e94560; color: #fff; }
-    #btn-ports  { background: #0f3460; color: #ccc; font-size: 0.85rem; }
+    #btn-run    { background: #54A0FF; color: #fff; }
+    #btn-upload { background: #FF6B6B; color: #fff; }
+    #btn-ports  { background: #A29BFE; color: #fff; font-size: 0.88rem; }
 
-    #port-select {
-      padding: 8px 10px;
-      border-radius: 6px;
-      background: #0f3460;
-      color: #eee;
-      border: 1px solid #e94560;
-      font-size: 0.85rem;
+    #port-select, #fqbn-select {
+      padding: 8px 14px;
+      border-radius: 50px;
+      background: #F0F4FF;
+      color: #444;
+      border: 2px solid #C5CAE9;
+      font-family: 'Fredoka One', 'Chalkboard SE', cursive;
+      font-size: 0.9rem;
+      outline: none;
+      cursor: pointer;
     }
-
-    #fqbn-select {
-      padding: 8px 10px;
-      border-radius: 6px;
-      background: #0f3460;
-      color: #eee;
-      border: 1px solid #555;
-      font-size: 0.85rem;
-    }
+    #port-select:focus, #fqbn-select:focus { border-color: #54A0FF; }
 
     /* ── Main area ── */
     #main {
@@ -85,17 +90,16 @@
       overflow: hidden;
     }
 
-    /* Blockly workspace */
     #blockly-div {
       flex: 1;
       height: 100%;
     }
 
-    /* Right panel */
+    /* ── Right panel ── */
     #panel {
-      width: 340px;
-      background: #16213e;
-      border-left: 2px solid #0f3460;
+      width: 360px;
+      background: #F0F4FF !important;
+      border-right: 3px solid #D0D8FF !important;
       display: flex;
       flex-direction: column;
       overflow: hidden;
@@ -104,63 +108,92 @@
 
     #panel-tabs {
       display: flex;
-      border-bottom: 2px solid #0f3460;
+      background: #F8F9FF;
+      border-bottom: 2px solid #E8ECFF;
     }
 
     .tab {
       flex: 1;
-      padding: 10px;
+      padding: 11px;
       text-align: center;
       cursor: pointer;
-      font-size: 0.85rem;
-      color: #888;
+      font-family: 'Fredoka One', 'Chalkboard SE', cursive;
+      font-size: 0.95rem;
+      color: #AABBD0;
       border-bottom: 3px solid transparent;
       transition: color 0.2s;
     }
-    .tab.active { color: #e94560; border-bottom-color: #e94560; }
+    .tab.active { color: #FF9F43; border-bottom-color: #FF9F43; }
 
     #panel-content {
       flex: 1;
       overflow: auto;
-      padding: 12px;
+      padding: 14px;
     }
 
     #code-output {
       font-family: 'Courier New', monospace;
-      font-size: 0.75rem;
-      color: #c5e1a5;
+      font-size: 0.88rem;
+      color: #5C6BC0;
       white-space: pre;
-      line-height: 1.5;
+      line-height: 1.6;
     }
 
     #status-output {
-      font-size: 0.85rem;
-      line-height: 1.7;
+      font-family: 'Fredoka One', 'Chalkboard SE', cursive;
+      font-size: 0.95rem;
+      line-height: 1.9;
     }
 
-    .status-ok    { color: #4CAF50; }
-    .status-error { color: #e94560; }
-    .status-info  { color: #90caf9; }
-    .status-warn  { color: #ffb74d; }
+    .status-ok    { color: #81C784; }
+    .status-error { color: #FF6B6B; }
+    .status-info  { color: #54A0FF; }
+    .status-warn  { color: #FF9F43; }
 
-    /* Progress spinner */
+    /* ── Spinner ── */
     .spinner {
       display: inline-block;
-      width: 12px; height: 12px;
-      border: 2px solid #555;
-      border-top-color: #e94560;
+      width: 13px; height: 13px;
+      border: 2px solid #DDE4FF;
+      border-top-color: #FF9F43;
       border-radius: 50%;
       animation: spin 0.7s linear infinite;
       margin-right: 6px;
       vertical-align: middle;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Blockly toolbox overrides ── */
+    .blocklyToolboxDiv {
+      background: #F0F4FF !important;
+      border-right: 3px solid #D0D8FF !important;
+      width: 210px !important;
+      min-width: 210px !important;
+      padding-top: 8px !important;
+    }
+
+    .blocklyToolboxDiv .blocklyTreeRow {
+      height: 54px !important;
+      padding: 0 14px !important;
+      display: flex !important;
+      align-items: center !important;
+      border-radius: 14px !important;
+      margin: 3px 8px !important;
+      transition: background 0.15s !important;
+    }
+
+    .blocklyTreeLabel {
+      font-family: 'Fredoka One', 'Chalkboard SE', cursive !important;
+      font-size: 1.2rem !important;
+      font-weight: 400 !important;
+      letter-spacing: 0.02em !important;
+    }
   </style>
 </head>
 <body>
   <!-- Header / toolbar -->
   <div id="header">
-    <h1>🚗 Car Block Coding</h1>
+    <h1>Car Block Coding</h1>
 
     <select id="fqbn-select" title="Arduino board variant">
       <option value="arduino:avr:nano:cpu=atmega328old">Nano (old bootloader)</option>
@@ -172,9 +205,9 @@
       <option value="">-- select port --</option>
     </select>
 
-    <button class="btn" id="btn-ports">⟳ Detect Ports</button>
-    <button class="btn" id="btn-run">▶ Run Program</button>
-    <button class="btn" id="btn-upload">⬆ Upload to Car</button>
+    <button class="btn" id="btn-ports">Detect Ports</button>
+    <button class="btn" id="btn-run">Run Program</button>
+    <button class="btn" id="btn-upload">Upload to Car</button>
   </div>
 
   <!-- Main content -->
@@ -187,7 +220,7 @@
         <div class="tab" data-tab="status">Status / Log</div>
       </div>
       <div id="panel-content">
-        <pre id="code-output">Press "▶ Run Program" to see the generated Arduino code.</pre>
+        <pre id="code-output">Press "Run Program" to see the generated Arduino code.</pre>
         <div id="status-output" style="display:none"></div>
       </div>
     </div>
