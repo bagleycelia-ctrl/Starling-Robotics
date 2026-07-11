@@ -6,16 +6,17 @@ window.CAR_TOOLBOX = {
     {
       kind: 'category',
       name: 'Control',
-      colour: '#54A0FF',
+      colour: '#2F91A3',
       contents: [
         { kind: 'block', type: 'car_start' },
         { kind: 'block', type: 'car_end' },
+        { kind: 'block', type: 'car_wait', fields: { DURATION: 1 } },
       ],
     },
     {
       kind: 'category',
       name: 'Movement',
-      colour: '#FF9F43',
+      colour: '#E0A93A',
       contents: [
         { kind: 'block', type: 'car_move_forward',   fields: { DURATION: 1 } },
         { kind: 'block', type: 'car_move_backward',  fields: { DURATION: 1 } },
@@ -30,11 +31,10 @@ window.CAR_TOOLBOX = {
     {
       kind: 'category',
       name: 'Loops',
-      colour: '#A29BFE',
+      colour: '#3C6178',
       contents: [
         { kind: 'block', type: 'car_repeat',       fields: { TIMES: 3 } },
         { kind: 'block', type: 'car_loop_forever' },
-        { kind: 'block', type: 'car_wait',         fields: { DURATION: 1 } },
       ],
     },
   ],

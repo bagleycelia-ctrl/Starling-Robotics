@@ -4,11 +4,11 @@
   'use strict';
 
   // ── Colour palette ──────────────────────────────────────────────────────────
-  var COLOUR_CONTROL  = '#54A0FF'; // sky blue
-  var COLOUR_MOVE     = '#FF9F43'; // orange (movement + turns + set speed)
-  var COLOUR_TURN     = '#FF9F43'; // same — merged into Movement
-  var COLOUR_MISC     = '#A29BFE'; // light purple (wait)
-  var COLOUR_LOOP     = '#A29BFE'; // light purple
+  var COLOUR_CONTROL  = '#2F91A3'; // teal
+  var COLOUR_MOVE     = '#E0A93A'; // gold (movement + turns + set speed)
+  var COLOUR_TURN     = '#E0A93A'; // same — merged into Movement
+  var COLOUR_MISC     = '#2F91A3'; // teal (wait — lives in Control)
+  var COLOUR_LOOP     = '#3C6178'; // navy
 
   // ── SVG icon helper ─────────────────────────────────────────────────────────
   function icon(inner, w, h) {

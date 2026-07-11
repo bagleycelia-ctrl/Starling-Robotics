@@ -7,7 +7,7 @@ function createWindow() {
   const win = new BrowserWindow({
     width: 1280,
     height: 850,
-    title: 'Car Block Coding',
+    title: 'Pathfinders Coding',
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,

@@ -5,34 +5,54 @@
 
   // ── Blockly workspace ───────────────────────────────────────────────────────
 
+  // Widen the connection snap zone so kids don't need pixel-perfect precision
+  // to drop a block between two already-connected blocks.
+  Blockly.config.snapRadius = 48;
+  Blockly.config.connectingSnapRadius = 48;
+
+  // Rounder block corners than stock Zelos, for a bubblier overall shape.
+  class KidConstantProvider extends Blockly.zelos.ConstantProvider {
+    constructor() {
+      super();
+      this.CORNER_RADIUS = 10;
+    }
+  }
+  class KidRenderer extends Blockly.zelos.Renderer {
+    makeConstants_() {
+      return new KidConstantProvider();
+    }
+  }
+  Blockly.blockRendering.register('kid_zelos', KidRenderer);
+
   var kidTheme = Blockly.Theme.defineTheme('carKid', {
     base: Blockly.Themes.Classic,
     fontStyle: {
-      family: "'Fredoka One', 'Chalkboard SE', cursive",
-      weight: '400',
-      size: 14,
+      family: "'Karla', 'Chalkboard SE', sans-serif",
+      weight: '700',
+      size: 13,
     },
     componentStyles: {
-      workspaceBackgroundColour: '#EEF2FF',
-      toolboxBackgroundColour: '#FFFFFF',
-      toolboxForegroundColour: '#333',
-      flyoutBackgroundColour: '#F8F9FF',
-      flyoutForegroundColour: '#333',
+      workspaceBackgroundColour: '#EAF6F8',
+      toolboxBackgroundColour: '#DCEFF3',
+      toolboxForegroundColour: '#204057',
+      flyoutBackgroundColour: '#FDF6E3',
+      flyoutForegroundColour: '#204057',
       flyoutOpacity: 1,
-      scrollbarColour: '#C5CAE9',
+      scrollbarColour: '#8AD0D8',
       scrollbarOpacity: 0.7,
-      insertionMarkerColour: '#FF9F43',
+      insertionMarkerColour: '#E9C258',
       insertionMarkerOpacity: 0.5,
-      cursorColour: '#54A0FF',
+      cursorColour: '#2F91A3',
     },
   });
 
   var workspace = Blockly.inject('blockly-div', {
     toolbox: window.CAR_TOOLBOX,
+    renderer: 'kid_zelos',
     scrollbars: true,
     trashcan: true,
     zoom: { controls: true, wheel: true, startScale: 1.0, maxScale: 2, minScale: 0.5 },
-    grid: { spacing: 24, length: 4, colour: '#D0D8FF', snap: true },
+    grid: { spacing: 26, length: 3, colour: '#CBEAEF', snap: true },
     theme: kidTheme,
     sounds: false,
   });
@@ -220,7 +240,7 @@
 
   document.getElementById('btn-ports').addEventListener('click', refreshPorts);
 
-  // ── Run Program (code preview) ──────────────────────────────────────────────
+  // ── Generate Code (code preview) ──────────────────────────────────────────
 
   document.getElementById('btn-run').addEventListener('click', async function () {
     var ast;

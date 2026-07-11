@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Car Block Coding</title>
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+  <title>Pathfinders Coding</title>
+  <link rel="icon" href="assets/logo.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,SOFT,WONK,wght@0,9..144,0..100,0..1,100..900&family=Karla:wght@500;600;700;800&display=swap" rel="stylesheet">
 
   <!-- Blockly core and built-in blocks -->
   <script src="../node_modules/blockly/blockly_compressed.js"></script>
@@ -16,12 +17,33 @@
   <script src="../src/ui/toolbox.js"></script>
 
   <style>
+    :root {
+      --gold-dark:  #C99A2E;
+      --gold:       #E9C258;
+      --gold-light: #F6E2A6;
+      --cream:      #FDF6E3;
+      --cream-text: #FFFDF6;
+      --teal-dark:  #1F6B78;
+      --teal:       #2F91A3;
+      --teal-light: #8AD0D8;
+      --teal-pale:  #DCEFF3;
+      --sky:        #DCEEF5;
+      --navy:       #204057;
+      --navy-soft:  #3C6178;
+    }
+
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
+    /* Fraunces variable-font axes tuned to echo the flyer's soft, bubbly slab-serif */
+    h1, .btn, .tab, .blocklyTreeLabel {
+      font-family: 'Fraunces', Georgia, serif;
+      font-variation-settings: 'SOFT' 100, 'WONK' 1, 'opsz' 36;
+    }
+
     body {
-      font-family: 'Fredoka One', 'Chalkboard SE', cursive;
-      background: #F0F4FF;
-      color: #333;
+      font-family: 'Karla', 'Chalkboard SE', sans-serif;
+      background: var(--sky);
+      color: var(--navy);
       height: 100vh;
       display: flex;
       flex-direction: column;
@@ -30,58 +52,78 @@
 
     /* ── Top bar ── */
     #header {
-      background: #FFFFFF;
-      padding: 10px 20px;
+      background: var(--gold);
+      padding: 12px 22px;
       display: flex;
+      flex-wrap: wrap;
       align-items: center;
-      gap: 12px;
-      border-bottom: 4px solid transparent;
-      border-image: linear-gradient(90deg, #FF6B6B, #FF9F43, #54A0FF, #A29BFE) 1;
-      box-shadow: 0 4px 16px rgba(100, 120, 200, 0.18);
+      gap: 10px 14px;
+      box-shadow: 0 4px 14px rgba(190, 150, 60, 0.28);
       flex-shrink: 0;
       z-index: 10;
+      position: relative;
+    }
+
+    #logo {
+      width: 46px;
+      height: 46px;
+      flex-shrink: 0;
+      border-radius: 50%;
+      object-fit: cover;
+      filter: drop-shadow(0 2px 3px rgba(120, 90, 20, 0.2));
     }
 
     #header h1 {
+      font-weight: 700;
       font-size: 1.6rem;
-      background: linear-gradient(90deg, #FF6B6B, #FF9F43);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      color: var(--cream-text);
+      text-shadow: 0 1px 2px rgba(150, 110, 30, 0.25);
       margin-right: auto;
+      letter-spacing: 0.01em;
+      white-space: nowrap;
+      flex-shrink: 0;
     }
 
     .btn {
-      padding: 9px 22px;
+      padding: 10px 24px;
       border: none;
       border-radius: 50px;
-      font-family: 'Fredoka One', 'Chalkboard SE', cursive;
+      font-weight: 600;
       font-size: 1rem;
       cursor: pointer;
       transition: transform 0.12s, box-shadow 0.12s;
-      box-shadow: 0 3px 8px rgba(0,0,0,0.12);
-      letter-spacing: 0.3px;
+      box-shadow: 0 3px 6px rgba(90, 100, 90, 0.16);
+      letter-spacing: 0.2px;
+      white-space: nowrap;
+      flex-shrink: 0;
     }
-    .btn:hover  { transform: translateY(-2px); box-shadow: 0 5px 14px rgba(0,0,0,0.18); }
-    .btn:active { transform: scale(0.95); box-shadow: 0 1px 4px rgba(0,0,0,0.12); }
+    .btn:hover  { transform: translateY(-2px); box-shadow: 0 5px 12px rgba(90, 100, 90, 0.22); }
+    .btn:active { transform: scale(0.95); box-shadow: 0 1px 3px rgba(90, 100, 90, 0.14); }
     .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; box-shadow: none; }
 
-    #btn-run    { background: #54A0FF; color: #fff; }
-    #btn-upload { background: #FF6B6B; color: #fff; }
-    #btn-ports  { background: #A29BFE; color: #fff; font-size: 0.88rem; }
+    #btn-run    { background: var(--teal-light); color: var(--teal-dark); }
+    #btn-upload { background: var(--navy-soft); color: var(--cream-text); }
+    #btn-ports  { background: var(--cream); color: var(--navy); font-size: 0.88rem; }
 
     #port-select, #fqbn-select {
-      padding: 8px 14px;
+      padding: 9px 16px;
       border-radius: 50px;
-      background: #F0F4FF;
-      color: #444;
-      border: 2px solid #C5CAE9;
-      font-family: 'Fredoka One', 'Chalkboard SE', cursive;
+      background: var(--cream);
+      color: var(--navy);
+      border: none;
+      font-family: 'Karla', sans-serif;
+      font-weight: 700;
       font-size: 0.9rem;
       outline: none;
       cursor: pointer;
+      box-shadow: inset 0 0 0 2px rgba(201, 154, 46, 0.35);
+      max-width: 200px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex-shrink: 1;
+      min-width: 0;
     }
-    #port-select:focus, #fqbn-select:focus { border-color: #54A0FF; }
+    #port-select:focus, #fqbn-select:focus { box-shadow: inset 0 0 0 2px var(--teal); }
 
     /* ── Main area ── */
     #main {
@@ -98,8 +140,8 @@
     /* ── Right panel ── */
     #panel {
       width: 360px;
-      background: #F0F4FF !important;
-      border-right: 3px solid #D0D8FF !important;
+      background: var(--teal-pale) !important;
+      border-left: 3px solid var(--teal-light) !important;
       display: flex;
       flex-direction: column;
       overflow: hidden;
@@ -108,54 +150,64 @@
 
     #panel-tabs {
       display: flex;
-      background: #F8F9FF;
-      border-bottom: 2px solid #E8ECFF;
+      gap: 8px;
+      background: var(--cream);
+      padding: 10px 10px 0;
     }
 
     .tab {
       flex: 1;
-      padding: 11px;
+      padding: 10px;
       text-align: center;
       cursor: pointer;
-      font-family: 'Fredoka One', 'Chalkboard SE', cursive;
-      font-size: 0.95rem;
-      color: #AABBD0;
-      border-bottom: 3px solid transparent;
-      transition: color 0.2s;
+      font-weight: 600;
+      font-size: 0.92rem;
+      color: var(--navy-soft);
+      opacity: 0.55;
+      border-radius: 14px 14px 0 0;
+      transition: color 0.2s, opacity 0.2s, background 0.2s;
     }
-    .tab.active { color: #FF9F43; border-bottom-color: #FF9F43; }
+    .tab.active { color: var(--teal-dark); opacity: 1; background: var(--teal-pale); }
 
     #panel-content {
       flex: 1;
       overflow: auto;
-      padding: 14px;
+      padding: 16px;
     }
 
     #code-output {
       font-family: 'Courier New', monospace;
       font-size: 0.88rem;
-      color: #5C6BC0;
-      white-space: pre;
+      color: var(--teal-dark);
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
       line-height: 1.6;
+      background: var(--cream);
+      border-radius: 18px;
+      padding: 16px;
+      box-shadow: 0 2px 8px rgba(120, 150, 140, 0.14);
+      display: block;
+      max-width: 100%;
     }
 
     #status-output {
-      font-family: 'Fredoka One', 'Chalkboard SE', cursive;
+      font-family: 'Karla', sans-serif;
+      font-weight: 700;
       font-size: 0.95rem;
       line-height: 1.9;
     }
 
-    .status-ok    { color: #81C784; }
-    .status-error { color: #FF6B6B; }
-    .status-info  { color: #54A0FF; }
-    .status-warn  { color: #FF9F43; }
+    .status-ok    { color: #4CA36B; }
+    .status-error { color: #D1735C; }
+    .status-info  { color: var(--teal); }
+    .status-warn  { color: var(--gold-dark); }
 
     /* ── Spinner ── */
     .spinner {
       display: inline-block;
       width: 13px; height: 13px;
-      border: 2px solid #DDE4FF;
-      border-top-color: #FF9F43;
+      border: 2px solid var(--teal-light);
+      border-top-color: var(--gold-dark);
       border-radius: 50%;
       animation: spin 0.7s linear infinite;
       margin-right: 6px;
@@ -163,29 +215,53 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
+    /* Blockly auto-darkens each block colour for its border stroke — soften it so
+       same-colour blocks are still distinguishable without a harsh dark line */
+    .blocklyDraggable > .blocklyPath,
+    .blocklyFlyout .blocklyPath {
+      stroke-opacity: 0.35 !important;
+    }
+
+    /* Fill-in-the-blank fields (numbers, dropdowns) default to plain white — warm them up
+       and round them a bit more for a bubblier pill shape */
+    .blocklyFieldRect {
+      fill: var(--cream) !important;
+      stroke-opacity: 0.4 !important;
+      rx: 8px;
+      ry: 8px;
+    }
+
+    /* Zelos renders dropdown chip text white (expecting a dark chip fill) —
+       now that the chip itself is cream, the text needs to be dark to match.
+       Blockly injects its own #fff !important rule for this class at runtime,
+       so we need extra specificity (not just source order) to win the tie-break. */
+    #blockly-div .blocklyDropdownText {
+      fill: var(--navy) !important;
+    }
+
     /* ── Blockly toolbox overrides ── */
     .blocklyToolboxDiv {
-      background: #F0F4FF !important;
-      border-right: 3px solid #D0D8FF !important;
+      background: var(--teal-pale) !important;
+      border-right: none !important;
+      box-shadow: 2px 0 10px rgba(120, 150, 140, 0.14);
       width: 210px !important;
       min-width: 210px !important;
-      padding-top: 8px !important;
+      padding-top: 10px !important;
     }
 
     .blocklyToolboxDiv .blocklyTreeRow {
-      height: 54px !important;
+      height: 56px !important;
       padding: 0 14px !important;
       display: flex !important;
       align-items: center !important;
-      border-radius: 14px !important;
-      margin: 3px 8px !important;
-      transition: background 0.15s !important;
+      border-radius: 20px !important;
+      margin: 4px 10px !important;
+      transition: background 0.15s, transform 0.15s !important;
     }
 
     .blocklyTreeLabel {
-      font-family: 'Fredoka One', 'Chalkboard SE', cursive !important;
-      font-size: 1.2rem !important;
-      font-weight: 400 !important;
+      font-weight: 600 !important;
+      font-size: 1.1rem !important;
       letter-spacing: 0.02em !important;
     }
   </style>
@@ -193,7 +269,8 @@
 <body>
   <!-- Header / toolbar -->
   <div id="header">
-    <h1>Car Block Coding</h1>
+    <img id="logo" src="assets/logo.png" alt="Pathfinders logo" />
+    <h1>Pathfinders Coding</h1>
 
     <select id="fqbn-select" title="Arduino board variant">
       <option value="arduino:avr:nano:cpu=atmega328old">Nano (old bootloader)</option>
@@ -206,7 +283,7 @@
     </select>
 
     <button class="btn" id="btn-ports">Detect Ports</button>
-    <button class="btn" id="btn-run">Run Program</button>
+    <button class="btn" id="btn-run">Generate Code</button>
     <button class="btn" id="btn-upload">Upload to Car</button>
   </div>
 
@@ -220,7 +297,7 @@
         <div class="tab" data-tab="status">Status / Log</div>
       </div>
       <div id="panel-content">
-        <pre id="code-output">Press "Run Program" to see the generated Arduino code.</pre>
+        <pre id="code-output">Press "Generate Code" to see the generated Arduino code.</pre>
         <div id="status-output" style="display:none"></div>
       </div>
     </div>
