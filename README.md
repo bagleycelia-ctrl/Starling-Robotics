@@ -1,11 +1,11 @@
-# car-block-coding
+# Pathfinder Robotic Cars
 
 A block-based programming app for controlling an Arduino robot car using Blockly and Electron.
 
 ## Features
 - Drag-and-drop block programming
 - Arduino code generation
-- Upload support for Arduino-compatible boards
+- Upload support for Arduino-compatible boards (uno and nanos)
 
 ## Development
 
