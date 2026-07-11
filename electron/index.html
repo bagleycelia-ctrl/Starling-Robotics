@@ -30,6 +30,12 @@
       --sky:        #DCEEF5;
       --navy:       #204057;
       --navy-soft:  #3C6178;
+
+      /* Vintage-tinted status colours (muted sage / brick / ochre instead of stock
+         traffic-light green/red/orange) so status messages match the rest of the palette */
+      --status-ok:    #6E8F5C;
+      --status-error: #A9573D;
+      --status-warn:  #C1862F;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -164,7 +170,7 @@
       font-size: 0.92rem;
       color: var(--navy-soft);
       opacity: 0.55;
-      border-radius: 14px 14px 0 0;
+      border-radius: 18px 18px 0 0;
       transition: color 0.2s, opacity 0.2s, background 0.2s;
     }
     .tab.active { color: var(--teal-dark); opacity: 1; background: var(--teal-pale); }
@@ -195,12 +201,16 @@
       font-weight: 700;
       font-size: 0.95rem;
       line-height: 1.9;
+      background: var(--cream);
+      border-radius: 18px;
+      padding: 16px;
+      box-shadow: 0 2px 8px rgba(120, 150, 140, 0.14);
     }
 
-    .status-ok    { color: #4CA36B; }
-    .status-error { color: #D1735C; }
+    .status-ok    { color: var(--status-ok); }
+    .status-error { color: var(--status-error); }
     .status-info  { color: var(--teal); }
-    .status-warn  { color: var(--gold-dark); }
+    .status-warn  { color: var(--status-warn); }
 
     /* ── Spinner ── */
     .spinner {
@@ -239,22 +249,28 @@
       fill: var(--navy) !important;
     }
 
-    /* ── Blockly toolbox overrides ── */
+    /* ── Blockly toolbox overrides ──
+       A soft step up from the workspace background (--sky) — enough to read as its own
+       rail without the saturation of --teal-light. Mirrors #panel's right-hand border so
+       the workspace sits symmetrically framed between the two side panels. */
     .blocklyToolboxDiv {
-      background: var(--teal-pale) !important;
-      border-right: none !important;
-      box-shadow: 2px 0 10px rgba(120, 150, 140, 0.14);
+      background: #C5E7EC !important;
+      border-right: 3px solid var(--teal-light) !important;
+      box-shadow: none;
       width: 210px !important;
       min-width: 210px !important;
       padding-top: 10px !important;
     }
 
+    /* Rounded-rectangle rows (not full pills — at this width:height ratio a true
+       capsule reads as a thin sliver). Matches the 18px corner radius already used
+       on the tabs and code/status bubbles, so it joins that shape family instead. */
     .blocklyToolboxDiv .blocklyTreeRow {
       height: 56px !important;
       padding: 0 14px !important;
       display: flex !important;
       align-items: center !important;
-      border-radius: 20px !important;
+      border-radius: 18px !important;
       margin: 4px 10px !important;
       transition: background 0.15s, transform 0.15s !important;
     }
@@ -264,9 +280,23 @@
       font-size: 1.1rem !important;
       letter-spacing: 0.02em !important;
     }
+
+    /* Trash can ships as a grey sprite icon — tint it to match the scrollbar colour
+       via the #trashTint filter (flood + alpha-composite) defined below in the body. */
+    .blocklyTrash image {
+      filter: url(#trashTint);
+    }
   </style>
 </head>
 <body>
+  <!-- Hidden SVG filter used to recolour the (grey, raster) trash can icon -->
+  <svg width="0" height="0" style="position:absolute">
+    <filter id="trashTint" color-interpolation-filters="sRGB">
+      <feFlood flood-color="#8AD0D8" result="tintColor" />
+      <feComposite in="tintColor" in2="SourceGraphic" operator="in" />
+    </filter>
+  </svg>
+
   <!-- Header / toolbar -->
   <div id="header">
     <img id="logo" src="assets/logo.png" alt="Pathfinders logo" />

@@ -5,8 +5,12 @@
 
   // ── Blockly workspace ───────────────────────────────────────────────────────
 
-  // Widen the connection snap zone so kids don't need pixel-perfect precision
-  // to drop a block between two already-connected blocks.
+  // Snap radius for connecting blocks. Widening this beyond stock Blockly's default
+  // was tried (to make big C-shaped loop blocks easier to land), but a wide radius
+  // lets a DISTANT connection (e.g. the top of a short stack) outrank the intended
+  // one when inserting a tall block between two already-connected blocks — Blockly
+  // then splices it in at the wrong spot instead of failing safely. 48px is as far
+  // as this goes without loop blocks starting to jump to the wrong connection.
   Blockly.config.snapRadius = 48;
   Blockly.config.connectingSnapRadius = 48;
 
@@ -15,6 +19,14 @@
     constructor() {
       super();
       this.CORNER_RADIUS = 10;
+      // Stock Zelos ships a white dropdown arrow (meant to sit on a dark field
+      // chip); our fields are cream, so swap in a navy arrow to match.
+      this.FIELD_DROPDOWN_SVG_ARROW_DATAURI = 'data:image/svg+xml;charset=utf-8,' +
+        encodeURIComponent(
+          '<svg xmlns="http://www.w3.org/2000/svg" width="12.71" height="8.79" viewBox="0 0 12.71 8.79">' +
+          '<path d="M6.36,7.79a1.43,1.43,0,0,1-1-.42L1.42,3.45a1.44,1.44,0,0,1,0-2c0.56-.56,9.31-0.56,9.87,0a1.44,1.44,0,0,1,0,2L7.37,7.37A1.43,1.43,0,0,1,6.36,7.79Z" fill="#204057"/>' +
+          '</svg>'
+        );
     }
   }
   class KidRenderer extends Blockly.zelos.Renderer {
@@ -33,7 +45,7 @@
     },
     componentStyles: {
       workspaceBackgroundColour: '#EAF6F8',
-      toolboxBackgroundColour: '#DCEFF3',
+      toolboxBackgroundColour: '#C5E7EC',
       toolboxForegroundColour: '#204057',
       flyoutBackgroundColour: '#FDF6E3',
       flyoutForegroundColour: '#204057',
