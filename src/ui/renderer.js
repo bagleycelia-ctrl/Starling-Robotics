@@ -165,6 +165,15 @@
       case 'car_loop_forever':
         return { type: 'loop_forever', body: statementsToNodes(block.getInputTargetBlock('DO')) };
 
+      case 'car_light_on':
+        return { type: 'light_on' };
+
+      case 'car_light_off':
+        return { type: 'light_off' };
+
+      case 'car_light_flash':
+        return { type: 'light_flash', times: +block.getFieldValue('TIMES') };
+
       default:
         return null;
     }

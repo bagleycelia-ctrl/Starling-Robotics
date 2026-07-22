@@ -25,8 +25,8 @@ const TEMPLATE = `\
 
 // ── Turn timing (milliseconds) ───────────────────────────────
 // Tune these so 90° and 180° are accurate on your car.
-#define TURN_90_MS  1142
-#define TURN_180_MS 2741
+#define TURN_90_MS  514
+#define TURN_180_MS 1233
 
 // ── Internal state ───────────────────────────────────────────
 static int motorSpeed = 128; // 0–255; applied on the next move* call
@@ -38,8 +38,10 @@ void stopMotors() {
 }
 
 void setSpeed(int level) {
-  if      (level == 1) motorSpeed = 64;
-  else if (level == 2) motorSpeed = 128;
+  if      (level == 1) motorSpeed = 51;
+  else if (level == 2) motorSpeed = 102;
+  else if (level == 3) motorSpeed = 153;
+  else if (level == 4) motorSpeed = 204;
   else                 motorSpeed = 255;
 }
 
@@ -76,9 +78,9 @@ void setup() {
   pinMode(AIN1, OUTPUT); pinMode(AIN2, OUTPUT);
   pinMode(BIN1, OUTPUT); pinMode(BIN2, OUTPUT);
   pinMode(LED_PIN, OUTPUT);
-  setSpeed(2);
+  setSpeed(3);
   stopMotors();
-  for (int i = 0; i < 10; i++) {
+  for (int i = 0; i < 5; i++) {
     digitalWrite(LED_PIN, HIGH);
     delay(200);
     digitalWrite(LED_PIN, LOW);
@@ -128,6 +130,15 @@ function generateInstruction(node, indent) {
 
     case 'set_speed':
       return indent + `setSpeed(${node.level});`;
+
+    case 'light_on':
+      return indent + `digitalWrite(LED_PIN, HIGH);`;
+
+    case 'light_off':
+      return indent + `digitalWrite(LED_PIN, LOW);`;
+
+    case 'light_flash':
+      return indent + `for (int f = 0; f < ${node.times}; f++) { digitalWrite(LED_PIN, HIGH); delay(200); digitalWrite(LED_PIN, LOW); delay(200); }`;
 
     case 'repeat': {
       const inner = (node.body || []).map((n) => generateInstruction(n, indent + '  ')).join('\n');

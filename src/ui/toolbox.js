@@ -25,7 +25,7 @@ window.CAR_TOOLBOX = {
         { kind: 'block', type: 'car_turn_around' },
         { kind: 'block', type: 'car_turn_left_for',  fields: { DURATION: 0.5 } },
         { kind: 'block', type: 'car_turn_right_for', fields: { DURATION: 0.5 } },
-        { kind: 'block', type: 'car_set_speed',      fields: { LEVEL: '2' } },
+        { kind: 'block', type: 'car_set_speed',      fields: { LEVEL: '3' } },
       ],
     },
     {
@@ -35,6 +35,16 @@ window.CAR_TOOLBOX = {
       contents: [
         { kind: 'block', type: 'car_repeat',       fields: { TIMES: 3 } },
         { kind: 'block', type: 'car_loop_forever' },
+      ],
+    },
+    {
+      kind: 'category',
+      name: 'Lights',
+      colour: '#CC7A52',
+      contents: [
+        { kind: 'block', type: 'car_light_on' },
+        { kind: 'block', type: 'car_light_off' },
+        { kind: 'block', type: 'car_light_flash', fields: { TIMES: 3 } },
       ],
     },
   ],
