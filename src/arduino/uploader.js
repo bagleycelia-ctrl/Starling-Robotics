@@ -1,6 +1,6 @@
 'use strict';
 
-const { execFile } = require('child_process');
+const { execFile, execFileSync } = require('child_process');
 const fs   = require('fs');
 const path = require('path');
 const os   = require('os');
@@ -49,9 +49,29 @@ async function findCLI() {
 // Matches the common USB-serial chip names that Arduino boards use on macOS/Linux.
 const SERIAL_RE = /^(cu\.usb|cu\.SLAB|cu\.wch|cu\.ch340|ttyUSB|ttyACM)/i;
 
+function listWindowsPorts() {
+  try {
+    const output = execFileSync(
+      'reg',
+      ['query', 'HKLM\\HARDWARE\\DEVICEMAP\\SERIALCOMM'],
+      { encoding: 'utf8', timeout: 5000 }
+    );
+    const ports = [];
+    output.split(/\r?\n/).forEach((line) => {
+      const m = line.trim().match(/(COM\d+)\s*$/i);
+      if (m) ports.push({ address: m[1], label: '' });
+    });
+    return ports;
+  } catch (_) {
+    // Registry key doesn't exist when no serial devices have ever connected
+    return [];
+  }
+}
+
 function listNativePorts() {
-  const devDir = process.platform === 'win32' ? null : '/dev/';
-  if (!devDir) return [];
+  if (process.platform === 'win32') return listWindowsPorts();
+
+  const devDir = '/dev/';
   try {
     return fs.readdirSync(devDir)
       .filter((name) => SERIAL_RE.test(name))
