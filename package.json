@@ -4,10 +4,9 @@
   "description": "Block-based programming for Arduino robot car",
   "main": "electron/main.js",
   "scripts": {
-    "start": "cross-env ELECTRON_RUN_AS_NODE= electron ."
+    "start": "node scripts/start.js"
   },
   "devDependencies": {
-    "cross-env": "^7.0.3",
     "electron": "^28.3.3"
   },
   "dependencies": {
