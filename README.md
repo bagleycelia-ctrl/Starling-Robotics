@@ -1,4 +1,4 @@
-# Pathfinder Robotic Cars
+# Starling Robotic Cars
 
 A block-based programming app for controlling an Arduino robot car using Blockly and Electron.
 
